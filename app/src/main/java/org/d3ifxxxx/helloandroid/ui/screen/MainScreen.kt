@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -25,6 +26,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,124 +42,170 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.d3ifxxxx.helloandroid.R
 import org.d3ifxxxx.helloandroid.ui.theme.HelloAndroidTheme
+import kotlin.math.pow
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun MainScreen(){
-        Scaffold (
-            topBar = {
-                TopAppBar(title = {
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScreen() {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
                     Text(text = stringResource(id = R.string.app_name))
                 },
-                    colors = TopAppBarDefaults.mediumTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    )
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
                 )
-            }
-        ){paddingValues -> ScreenContent(Modifier.padding(paddingValues))
-
+            )
         }
+    ) { paddingValues ->
+        ScreenContent(Modifier.padding(paddingValues))
+
+    }
+}
+
+@Composable
+fun ScreenContent(modifier: Modifier) {
+    var berat by remember { mutableStateOf("") }
+    var tinggi by remember { mutableStateOf("") }
+
+    val radioOptions = listOf(
+        stringResource(id = R.string.pria),
+        stringResource(id = R.string.wanita)
+    )
+    var gender by remember {
+        mutableStateOf(radioOptions[0])
     }
 
-    @Composable
-    fun ScreenContent(modifier: Modifier){
-        var berat by remember { mutableStateOf("") }
-        var tinggi by remember { mutableStateOf("") }
+    var bmi by remember{ mutableFloatStateOf(0f) }
+    var kategori by remember{ mutableIntStateOf(0) }
 
-        val radioOptions = listOf(
-            stringResource(id = R.string.pria),
-            stringResource(id = R.string.wanita)
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(id = R.string.bmi_intro),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.fillMaxWidth()
         )
-        var gender by remember {
-            mutableStateOf(radioOptions[0])
-        }
-
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(id = R.string.bmi_intro),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(value = berat,
-                onValueChange = { berat = it},
-                label = { Text(text = stringResource(id = R.string.berat_badan))},
-                trailingIcon = { Text(text = "kg")},
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(value = tinggi,
-                onValueChange = { tinggi = it},
-                label = { Text(text = stringResource(id = R.string.tinggi_badan))},
-                trailingIcon = { Text(text = "cm")},
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Row(
-                modifier = Modifier
-                    .padding(top = 6.dp)
-                    .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
-            ){
-                radioOptions.forEach { text ->
-                    GenderOption(label = text, isSelected = gender == text,
-                        modifier = Modifier
-                            .selectable(
-                                selected = gender == text,
-                                onClick = { gender = text },
-                                role = Role.RadioButton
-                            )
-                            .weight(1f)
-                            .padding(16.dp)
-                    )
-                }
-            }
-            Button(
-                onClick = {},
-                modifier = Modifier.padding(top = 8.dp),
-                contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
-            ) {
-                Text(text = stringResource(id = R.string.hitung))
-                
-            }
-        }
-    }
-
-    @Composable
-    fun GenderOption(label: String, isSelected: Boolean, modifier: Modifier){
+        OutlinedTextField(
+            value = berat,
+            onValueChange = { berat = it },
+            label = { Text(text = stringResource(id = R.string.berat_badan)) },
+            trailingIcon = { Text(text = "kg") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = tinggi,
+            onValueChange = { tinggi = it },
+            label = { Text(text = stringResource(id = R.string.tinggi_badan)) },
+            trailingIcon = { Text(text = "cm") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
         Row(
-            modifier = modifier,
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier
+                .padding(top = 6.dp)
+                .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
         ) {
-            RadioButton(selected = isSelected, onClick = null)
-            Text(text = label,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(start = 8.dp)
+            radioOptions.forEach { text ->
+                GenderOption(
+                    label = text, isSelected = gender == text,
+                    modifier = Modifier
+                        .selectable(
+                            selected = gender == text,
+                            onClick = { gender = text },
+                            role = Role.RadioButton
+                        )
+                        .weight(1f)
+                        .padding(16.dp)
                 )
-
+            }
+        }
+        Button(
+            onClick = {
+                bmi = hitungBmi(berat.toFloat(), tinggi.toFloat())
+                kategori = getKategori(bmi, gender == radioOptions[0])
+            },
+            modifier = Modifier.padding(top = 8.dp),
+            contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
+        ) {
+            Text(text = stringResource(id = R.string.hitung))
+        }
+        if (bmi != 0f){
+            Divider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 1.dp
+            )
+            Text(
+                text = stringResource(R.string.bmi_x, bmi),
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                text = stringResource(kategori).uppercase(),
+                style = MaterialTheme.typography.headlineLarge
+            )
         }
     }
+}
 
+@Composable
+fun GenderOption(label: String, isSelected: Boolean, modifier: Modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(selected = isSelected, onClick = null)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(start = 8.dp)
+        )
 
-    @Preview(showBackground = true)
-    @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
-    @Composable
-    fun ScreenPreview() {
-        HelloAndroidTheme {
-            MainScreen()
+    }
+}
+
+private fun hitungBmi(berat: Float, tinggi: Float): Float {
+    return berat / (tinggi / 100).pow(2)
+}
+
+private fun getKategori(bmi: Float, isMale: Boolean): Int {
+    return if (isMale) {
+        when {
+            bmi < 20.5 -> R.string.kurus
+            bmi >= 27.0 -> R.string.gemuk
+            else -> R.string.ideal
+        }
+    } else {
+        when {
+            bmi < 18.5 -> R.string.kurus
+            bmi >= 25.0 -> R.string.gemuk
+            else -> R.string.ideal
         }
     }
+}
+
+
+@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+@Composable
+fun ScreenPreview() {
+    HelloAndroidTheme {
+        MainScreen()
+    }
+}
