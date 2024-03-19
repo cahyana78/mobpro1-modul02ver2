@@ -13,7 +13,7 @@ fun SetupNavGraph(navHostController: NavHostController = rememberNavController()
     NavHost(navController = navHostController,
         startDestination = Screen.Home.route){
         composable(route = Screen.Home.route){
-            MainScreen()
+            MainScreen(navHostController)
         }
         composable(route = Screen.About.route){
             AboutScreen()
